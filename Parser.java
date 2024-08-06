@@ -48,7 +48,7 @@ public class Parser {
         if(this.next < this.tokens.size() && this.tokens.get(this.next).equals(id)) {
             
             // Codigo para el Shunting Yard Algorithm
-            /*
+            
             if (id == Token.NUMBER) {
 				// Encontramos un numero
 				// Debemos guardarlo en el stack de operandos
@@ -67,7 +67,7 @@ public class Parser {
 				// Que pushOp haga el trabajo, no quiero hacerlo yo aqui
 				pushOp( this.tokens.get(this.next) );
 			}
-			*/
+			
 
             this.next++;
             return true;
@@ -83,9 +83,21 @@ public class Parser {
 
         switch(op.getId()) {
         	case Token.PLUS:
+                return 1;
+            case Token.MINUS:
         		return 1;
         	case Token.MULT:
+                return 2;
+            case Token.DIV:
+                return 2;
+            case Token.MOD:
         		return 2;
+            case Token.EXP:
+                return 3;
+            case Token.LPAREN:
+                return 4;
+            case Token.RPAREN:
+                return 4;
         	default:
         		return -1;
         }
@@ -94,39 +106,50 @@ public class Parser {
     private void popOp() {
         Token op = this.operadores.pop();
 
-        /* TODO: Su codigo aqui */
-
-        /* El codigo de esta seccion se explicara en clase */
-
         if (op.equals(Token.PLUS)) {
         	double a = this.operandos.pop();
         	double b = this.operandos.pop();
         	// print para debug, quitarlo al terminar
         	System.out.println("suma " + a + " + " + b);
         	this.operandos.push(a + b);
-        } else if (op.equals(Token.MULT)) {
+        }else if(op.equals(Token.MINUS)){
+            double a = this.operandos.pop();
+        	double b = this.operandos.pop();
+        	// print para debug, quitarlo al terminar
+        	System.out.println("resta " + a + " - " + b);
+        	this.operandos.push(a - b);
+        }else if (op.equals(Token.MULT)) {
         	double a = this.operandos.pop();
         	double b = this.operandos.pop();
         	// print para debug, quitarlo al terminar
         	System.out.println("mult " + a + " * " + b);
         	this.operandos.push(a * b);
+        }else if (op.equals(Token.DIV)) {
+        	double a = this.operandos.pop();
+        	double b = this.operandos.pop();
+        	// print para debug, quitarlo al terminar
+        	System.out.println("div " + a + " / " + b);
+        	this.operandos.push(a / b);
+        }else if (op.equals(Token.MOD)) {
+        	double a = this.operandos.pop();
+        	double b = this.operandos.pop();
+        	// print para debug, quitarlo al terminar
+        	System.out.println("mod " + a + " % " + b);
+        	this.operandos.push(a % b);
+        }else if (op.equals(Token.EXP)) {
+        	double a = this.operandos.pop();
+        	double b = this.operandos.pop();
+        	// print para debug, quitarlo al terminar
+        	System.out.println("exp " + a + " ^ " + b);
+        	this.operandos.push(Math.pow(a, b));
         }
     }
 
     private void pushOp(Token op) {
-        /* TODO: Su codigo aqui */
-
-        /* Casi todo el codigo para esta seccion se vera en clase */
-    	
-    	// Si no hay operandos automaticamente ingresamos op al stack
-
-    	// Si si hay operandos:
-    		// Obtenemos la precedencia de op
-        	// Obtenemos la precedencia de quien ya estaba en el stack
-        	// Comparamos las precedencias y decidimos si hay que operar
-        	// Es posible que necesitemos un ciclo aqui, una vez tengamos varios niveles de precedencia
-        	// Al terminar operaciones pendientes, guardamos op en stack
-
+        while(!this.operadores.empty() && pre(this.operadores.peek()) >= pre(op)){
+            popOp(); 
+        }
+        this.operadores.push(op);
     }
 
     private boolean S() {
@@ -134,8 +157,52 @@ public class Parser {
     }
 
     private boolean E() {
+        return T() && Ep();
+    }
+
+    private boolean Ep(){
+        if(next < tokens.size() && (tokens.get(next).getId() == Token.PLUS || tokens.get(next).getId() == Token.MINUS)){
+            Token op = tokens.get(next);
+            if(T()){
+                pushOp(op);
+                return Ep();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private boolean T(){
+        return F() && Tp();
+    }
+
+    private boolean Tp(){
+         if(next < tokens.size() && (tokens.get(next).getId() == Token.MULT || tokens.get(next).getId() == Token.DIV || tokens.get(next).getId() == Token.MOD || tokens.get(next).getId() == Token.EXP)){
+            Token op = tokens.get(next);
+            if(F()){
+                pushOp(op);
+                return Tp();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private boolean F(){
+        if(term(Token.MINUS)){
+            if(F()){
+                double a = this.operandos.pop();
+                this.operandos.push(-a);
+                return true;
+            }
+            return false;
+        }else if(term(Token.LPAREN)){
+            boolean resultado = E();
+            return resultado && term(Token.RPAREN);
+        }else if(term(Token.NUMBER)){
+            return true;
+        }
         return false;
     }
 
-    /* TODO: sus otras funciones aqui */
 }
