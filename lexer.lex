@@ -87,7 +87,7 @@ POINT = "."
 SIGN = [+-]
 EXP = [eE]
 
-NUMBER = (({DIGIT})+({POINT}?{DIGIT}*)?({EXP}{SIGN}?{DIGIT}+)?)
+NUMBER = ([-]?({DIGIT})+({POINT}?{DIGIT}*)?({EXP}{SIGN}?{DIGIT}+)?)
 
 SEMI = ";"
 PLUS = "+"
@@ -125,7 +125,7 @@ WHITE = [ \t\n\r]+
 
 <YYINITIAL>{NUMBER}   {return new Token(Token.NUMBER, yytext());}
 
-<<YYINITIAL>>{UNARY}    {return new Token(Token.UNARY);}
+<YYINITIAL>{UNARY}    {return new Token(Token.UNARY);}
 
 <YYINITIAL>.        { return new Token(Token.ERROR);
                       /* todo lo demas es ERROR */ }
