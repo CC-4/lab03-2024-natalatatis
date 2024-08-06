@@ -33,8 +33,9 @@ public class Parser {
 
         // Shunting Yard Algorithm
         // Imprime el resultado de operar el input
-        // System.out.println("Resultado: " + this.operandos.peek());
-
+        
+       System.out.println("Resultado: " + this.operandos.peek());
+       
         // Verifica si terminamos de consumir el input
         if(this.next != this.tokens.size()) {
             return false;
@@ -77,10 +78,7 @@ public class Parser {
 
     // Funcion que verifica la precedencia de un operador
     private int pre(Token op) {
-        /* TODO: Su codigo aqui */
-
-        /* El codigo de esta seccion se explicara en clase */
-
+    
         switch(op.getId()) {
         	case Token.PLUS:
                 return 1;
@@ -105,48 +103,26 @@ public class Parser {
 
     private void popOp() {
         Token op = this.operadores.pop();
+        double a = this.operandos.pop();
+        double b = this.operandos.pop();
 
-        if (op.equals(Token.PLUS)) {
-        	double a = this.operandos.pop();
-        	double b = this.operandos.pop();
-        	// print para debug, quitarlo al terminar
-        	System.out.println("suma " + a + " + " + b);
+        if (op.equals(Token.PLUS)) {       	
         	this.operandos.push(a + b);
         }else if(op.equals(Token.MINUS)){
-            double a = this.operandos.pop();
-        	double b = this.operandos.pop();
-        	// print para debug, quitarlo al terminar
-        	System.out.println("resta " + a + " - " + b);
         	this.operandos.push(a - b);
         }else if (op.equals(Token.MULT)) {
-        	double a = this.operandos.pop();
-        	double b = this.operandos.pop();
-        	// print para debug, quitarlo al terminar
-        	System.out.println("mult " + a + " * " + b);
         	this.operandos.push(a * b);
         }else if (op.equals(Token.DIV)) {
-        	double a = this.operandos.pop();
-        	double b = this.operandos.pop();
-        	// print para debug, quitarlo al terminar
-        	System.out.println("div " + a + " / " + b);
         	this.operandos.push(a / b);
         }else if (op.equals(Token.MOD)) {
-        	double a = this.operandos.pop();
-        	double b = this.operandos.pop();
-        	// print para debug, quitarlo al terminar
-        	System.out.println("mod " + a + " % " + b);
         	this.operandos.push(a % b);
         }else if (op.equals(Token.EXP)) {
-        	double a = this.operandos.pop();
-        	double b = this.operandos.pop();
-        	// print para debug, quitarlo al terminar
-        	System.out.println("exp " + a + " ^ " + b);
-        	this.operandos.push(Math.pow(a, b));
+        	this.operandos.push(Math.pow(b, a));
         }
     }
 
     private void pushOp(Token op) {
-        while(!this.operadores.empty() && pre(this.operadores.peek()) >= pre(op)){
+        while(!this.operadores.isEmpty() && pre(this.operadores.peek()) >= pre(op)){
             popOp(); 
         }
         this.operadores.push(op);
@@ -163,6 +139,7 @@ public class Parser {
     private boolean Ep(){
         if(next < tokens.size() && (tokens.get(next).getId() == Token.PLUS || tokens.get(next).getId() == Token.MINUS)){
             Token op = tokens.get(next);
+            next++;
             if(T()){
                 pushOp(op);
                 return Ep();
@@ -179,6 +156,7 @@ public class Parser {
     private boolean Tp(){
          if(next < tokens.size() && (tokens.get(next).getId() == Token.MULT || tokens.get(next).getId() == Token.DIV || tokens.get(next).getId() == Token.MOD || tokens.get(next).getId() == Token.EXP)){
             Token op = tokens.get(next);
+            next++;
             if(F()){
                 pushOp(op);
                 return Tp();
